@@ -2,6 +2,8 @@ package controller
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -11,16 +13,20 @@ import (
 var moduleMap = make(map[string]interface{})
 var err error
 
+// 所有模块对应方法存储
 func init() {
-	// 模块方法存储
 	moduleMap["home"] = Home
 	moduleMap["emp"] = Emp
 	moduleMap["dept"] = Dept
 	moduleMap["office"] = Office
 }
 
+// 开启服务
 func Serve() {
+	// 动态资源
 	http.HandleFunc("/", Handler)
+	// 静态资源服务
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("src/static"))))
 	http.ListenAndServe("localhost:8080", nil)
 }
 
@@ -66,6 +72,7 @@ func Call(funcMap map[string]interface{}, name string, w http.ResponseWriter, r 
 }
 
 // 全局代理方法
+// TODO多线程,高并发
 func Handler(w http.ResponseWriter, r *http.Request) {
 	// 先判断uri中包含几级目录
 	// 根目录
@@ -88,4 +95,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 func Home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Welcome to home!"))
 	return
+}
+
+// 模板解析出错处理,出错返回false
+func ParseTemplateError(w http.ResponseWriter, err error) bool {
+	if err != nil {
+		log.Printf("parse template error: %s!\n", err.Error())
+		fmt.Fprintf(w, "parse template error: %s!", err.Error())
+	}
+	return err == nil
 }

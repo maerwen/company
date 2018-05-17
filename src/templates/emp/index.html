@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>emps</title>
+        <link href="/static/css/table.css" rel="stylesheet" />  
+    </head>
+    <body>
+        <table>
+            <tr>
+                <th>员工编号</th>
+                <th>员工姓名</th>
+                <th>员工年龄</th>
+                <th>员工性别</th>
+            </tr>
+            {{range.}}
+            <!-- 对map进行遍历, .代表传入的对象map,取到的值是map存储的value -->
+                <tr>
+                    <td>{{.EmpNo}}</td>
+                    <td>{{.EmpName}}</td>
+                    <td>{{.Age}}</td>
+                    <td>
+                        {{if .Sex }}
+                        <!-- 对Sex进行判断 -->
+                            男
+                        {{else}}
+                            女
+                        {{end}}
+                    </td>
+                </tr>
+            {{end}}
+        </table>
+    </body>
+</html>
