@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
@@ -16,8 +17,10 @@ var empFuncMap = make(map[string]interface{})
 
 // emp模块方法存储
 func init() {
-	empFuncMap["insert"] = InsertEmp
 	empFuncMap["index"] = FindEmps
+	empFuncMap["insert"] = InsertEmp
+	empFuncMap["update"] = UpdateEmp
+	empFuncMap["delete"] = DeleteEmp
 }
 
 // 对模块下面各个方法进行代理
@@ -26,33 +29,38 @@ func Emp(w http.ResponseWriter, r *http.Request) {
 		FindEmps(w, r)
 		return
 	}
-	method := strings.Split(r.RequestURI[1:], "/")[1]
+	path := r.RequestURI[1:]
+	if strings.Contains(path, "?") {
+		path = strings.Split(r.RequestURI[1:], "?")[0]
+	}
+	method := strings.Split(path, "/")[1]
 	_, err = Call(empFuncMap, method, w, r)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
+	if !CommonError(w, err) {
+		return
 	}
 }
 
-// 查询并列出所有的emp
+// GET	查询所有emp
+// POST	根据指定条件查询emp
 func FindEmps(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("src/templates/emp/index.html")
-	if !ParseTemplateError(w, err) {
+	if !TemplateParseError(w, err) {
 		return
 	}
 	err = t.Execute(w, empMap)
-	if err != nil {
-		log.Printf("parse template error: %s!\n", err.Error())
+	if !CommonError(w, err) {
 		return
 	}
 }
 
-// 插入一条数据
+// GET	显示新增emp页面
+// POST	插入一条emp数据
 func InsertEmp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method { // r.Method是GET, POST, PUT, etc..大写!!!
 	case "GET": //访问网页
 		r.ParseForm()
-		t, err := template.ParseFiles("src/templates/emp/create.html")
-		if !ParseTemplateError(w, err) {
+		t, err := template.ParseFiles("src/templates/emp/insert.html")
+		if !TemplateParseError(w, err) {
 			return
 		}
 		t.Execute(w, nil)
@@ -74,8 +82,7 @@ func InsertEmp(w http.ResponseWriter, r *http.Request) {
 		ageArr := r.Form["age"]
 		sexArr := r.Form["sex"]
 		age, err := strconv.Atoi(ageArr[0])
-		if err != nil {
-			http.Error(w, "年龄格式不正确", 233)
+		if !CommonError(w, err) {
 			return
 		}
 		empNo++
@@ -87,7 +94,84 @@ func InsertEmp(w http.ResponseWriter, r *http.Request) {
 			Sex:     sexArr[0] == "1",
 		}
 		empMap[empNo] = emp
-		log.Println("向数据库插入了一条emp数据")
+		log.Println("插入了一条emp数据")
+		fallthrough
+	default:
+		FindEmps(w, r)
+	}
+}
+
+// GET	显示emp修改页面
+// POST	修改一条emp数据
+func UpdateEmp(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		r.ParseForm()
+		empIdArr := r.Form["empNo"]
+		if empIdArr == nil {
+			err = errors.New("no such parameter")
+			if !CommonError(w, err) {
+				return
+			}
+		}
+		empId, err := strconv.Atoi(empIdArr[0])
+		if !CommonError(w, err) {
+			return
+		}
+		emp := empMap[empId]
+		t, err := template.ParseFiles("src/templates/emp/update.html")
+		if !TemplateParseError(w, err) {
+			return
+		}
+		err = t.Execute(w, emp)
+		if !CommonError(w, err) {
+			return
+		}
+	case "POST":
+		r.ParseForm()
+		empId, err := strconv.Atoi(r.Form["empNo"][0])
+		if !CommonError(w, err) {
+			return
+		}
+		empName := r.Form["empName"][0]
+		age, err := strconv.Atoi(r.Form["age"][0])
+		if !CommonError(w, err) {
+			return
+		}
+		sexStr := r.Form["sex"][0]
+		var sex bool
+		if sexStr == "0" {
+			sex = false
+		} else {
+			sex = true
+		}
+		emp := vo.Emp{
+			EmpNo:   empId,
+			EmpName: empName,
+			Age:     age,
+			Sex:     sex,
+		}
+		empMap[empId] = emp
+		log.Println("修改了一条emp数据")
+		fallthrough
+	default:
+		FindEmps(w, r)
+	}
+}
+
+// GET	删除一条emp数据
+func DeleteEmp(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		r.ParseForm()
+		empIdStr := r.Form["empNo"][0]
+		empId, err := strconv.Atoi(empIdStr)
+		if !CommonError(w, err) {
+			return
+		}
+		// 从map里面删除
+		delete(empMap, empId)
+		log.Println("删除了一条emp数据")
 		fallthrough
 	default:
 		FindEmps(w, r)

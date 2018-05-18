@@ -1,32 +1,56 @@
 <html>
-    <head>
-        <title>emps</title>
-        <link href="/static/css/table.css" rel="stylesheet" />  
-    </head>
-    <body>
+
+<head>
+    <title>emps</title>
+    <link href="/static/css/index.css" rel="stylesheet" />
+    <link rel="icon" href="data:;base64,=">
+</head>
+
+<body>
+    <center>
+        <div>
+            <a href="/emp/insert">新增员工</a>
+        </div>
         <table>
             <tr>
                 <th>员工编号</th>
                 <th>员工姓名</th>
                 <th>员工年龄</th>
                 <th>员工性别</th>
+                <th>操作</th>
             </tr>
             {{range.}}
             <!-- 对map进行遍历, .代表传入的对象map,取到的值是map存储的value -->
-                <tr>
-                    <td>{{.EmpNo}}</td>
-                    <td>{{.EmpName}}</td>
-                    <td>{{.Age}}</td>
-                    <td>
-                        {{if .Sex }}
-                        <!-- 对Sex进行判断 -->
-                            男
-                        {{else}}
-                            女
-                        {{end}}
-                    </td>
-                </tr>
+            <tr>
+                <td>{{.EmpNo}}</td>
+                <td>{{.EmpName}}</td>
+                <td>{{.Age}}</td>
+                <td>
+                    {{if .Sex }}
+                    <!-- 对Sex进行判断 -->
+                    男 {{else}} 女 {{end}}
+                </td>
+                <td>
+                    <input type="button" onclick="update(this)" data-id="{{.EmpNo}}" value="修改">
+                    <input type="button" onclick="del(this)" data-id="{{.EmpNo}}" value="删除">
+                </td>
+            </tr>
             {{end}}
         </table>
-    </body>
+    </center>
+</body>
+
 </html>
+<script>
+    //  window.location是只有绝对路径且为根目录
+    //  window.open是可以读取相对路径和绝对路径
+    function update(e) {
+        var empNo = e.getAttribute("data-id")
+        window.location = "/emp/update?empNo=" + empNo
+    }
+
+    function del(e) {
+        var empNo = e.getAttribute("data-id")
+        window.location = "/emp/delete?empNo=" + empNo
+    }
+</script>

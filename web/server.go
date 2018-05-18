@@ -52,6 +52,10 @@ func Serve() {
 	return fv.Call(in), nil
 } */
 func Call(funcMap map[string]interface{}, name string, w http.ResponseWriter, r *http.Request) (resultSet []reflect.Value, err error) {
+	if name == "favicon.ico" { //防止莫名其妙的报错
+		// log.Println(name)
+		return
+	}
 	f := funcMap[name]
 	if f == nil {
 		// Error(w ResponseWriter, error string, code int) code是错误状态码
@@ -98,10 +102,19 @@ func Home(w http.ResponseWriter, r *http.Request) {
 }
 
 // 模板解析出错处理,出错返回false
-func ParseTemplateError(w http.ResponseWriter, err error) bool {
+func TemplateParseError(w http.ResponseWriter, err error) bool {
 	if err != nil {
 		log.Printf("parse template error: %s!\n", err.Error())
 		fmt.Fprintf(w, "parse template error: %s!", err.Error())
+	}
+	return err == nil
+}
+
+// 一般错误处理,出错返回false
+func CommonError(w http.ResponseWriter, err error) bool {
+	if err != nil {
+		log.Printf("error: %s!\n", err.Error())
+		fmt.Fprintf(w, "error: %s!", err.Error())
 	}
 	return err == nil
 }
