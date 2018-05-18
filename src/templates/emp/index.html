@@ -9,6 +9,15 @@
 <body>
     <center>
         <div>
+            <form action="/emp/find">
+                根据员工性别筛选:
+                <!--form里面的 submit()默认直接提交 -->
+                <select name="sex" onchange="queryBySex()">
+                    <option>全部</option>
+                    <option value="1">男</option>
+                    <option value="0">女</option>
+                </select>
+            </form>
             <a href="/emp/insert">新增员工</a>
         </div>
         <table>
@@ -19,16 +28,15 @@
                 <th>员工性别</th>
                 <th>操作</th>
             </tr>
-            {{range.}}取到的值是map存储的value
+            {{range.}}
             <!-- 对map进行遍历, .代表传入的对象map,取到的值是map存储的value -->
             <tr>
                 <td>{{.EmpNo}}</td>
                 <td>{{.EmpName}}</td>
                 <td>{{.Age}}</td>
                 <td>
-                    {{if .Sex }}
                     <!-- 对Sex进行判断 -->
-                    男 {{else}} 女 {{end}}
+                    {{if .Sex }} 男 {{else}} 女 {{end}}
                 </td>
                 <td>
                     <input type="button" onclick="update(this)" data-id="{{.EmpNo}}" value="修改">
@@ -52,5 +60,13 @@
     function del(e) {
         var empNo = e.getAttribute("data-id")
         window.location = "/emp/delete?empNo=" + empNo
+    }
+
+    function ajax() {
+
+    }
+
+    function queryBySex() {
+
     }
 </script>
