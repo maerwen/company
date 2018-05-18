@@ -1,6 +1,6 @@
 package main
 
-import "./web"
+import "./controller"
 
 func main() {
 	controller.Serve()
