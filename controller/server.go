@@ -17,6 +17,7 @@ func init() {
 	moduleMap["emp"] = Emp
 	moduleMap["dept"] = Dept
 	moduleMap["office"] = Office
+	moduleMap["file"] = File
 }
 
 // 开启服务
@@ -26,6 +27,7 @@ func Serve() {
 	// 静态资源服务
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("src/static"))))
 	http.ListenAndServe("localhost:8080", nil)
+	// http.ListenAndServe("192.168.14.184:8080", nil)
 }
 
 // 针对uri为多级路径时调用不同模块的不同方法
