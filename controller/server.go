@@ -18,6 +18,7 @@ func init() {
 	moduleMap["dept"] = Dept
 	moduleMap["office"] = Office
 	moduleMap["file"] = File
+	moduleMap["cmd"] = Cmd
 }
 
 // 开启服务
