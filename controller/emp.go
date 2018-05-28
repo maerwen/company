@@ -36,21 +36,15 @@ func Emp(w http.ResponseWriter, r *http.Request) {
 	}
 	method := strings.Split(path, "/")[1]
 	_, err = Call(empFuncMap, method, w, r)
-	if !CommonError(w, err) {
-		return
-	}
+	CommonError(w, err)
 }
 
 // GET	查询所有emp
 func FindEmps(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("src/templates/emp/index.html")
-	if !TemplateParseError(w, err) {
-		return
-	}
+	TemplateParseError(w, err)
 	err = t.Execute(w, empMap)
-	if !CommonError(w, err) {
-		return
-	}
+	CommonError(w, err)
 }
 
 // GET	根据给定条件查询符合条件的emp
@@ -83,9 +77,7 @@ func InsertEmp(w http.ResponseWriter, r *http.Request) {
 	switch r.Method { // r.Method是GET, POST, PUT, etc..大写!!!
 	case "GET": //访问网页
 		t, err := template.ParseFiles("src/templates/emp/insert.html")
-		if !TemplateParseError(w, err) {
-			return
-		}
+		TemplateParseError(w, err)
 		t.Execute(w, nil)
 	case "POST":
 		// 请求实体数据读取
@@ -105,9 +97,7 @@ func InsertEmp(w http.ResponseWriter, r *http.Request) {
 		ageArr := r.Form["age"]
 		sexArr := r.Form["sex"]
 		age, err := strconv.Atoi(ageArr[0])
-		if !CommonError(w, err) {
-			return
-		}
+		CommonError(w, err)
 		empNo++
 		// 模拟存储到数据库
 		emp := vo.Emp{
@@ -133,33 +123,21 @@ func UpdateEmp(w http.ResponseWriter, r *http.Request) {
 		empIdArr := r.Form["empNo"]
 		if empIdArr == nil {
 			err = errors.New("no such parameter")
-			if !CommonError(w, err) {
-				return
-			}
+			CommonError(w, err)
 		}
 		empId, err := strconv.Atoi(empIdArr[0])
-		if !CommonError(w, err) {
-			return
-		}
+		CommonError(w, err)
 		emp := empMap[empId]
 		t, err := template.ParseFiles("src/templates/emp/update.html")
-		if !TemplateParseError(w, err) {
-			return
-		}
+		TemplateParseError(w, err)
 		err = t.Execute(w, emp)
-		if !CommonError(w, err) {
-			return
-		}
+		CommonError(w, err)
 	case "POST":
 		empId, err := strconv.Atoi(r.Form["empNo"][0])
-		if !CommonError(w, err) {
-			return
-		}
+		CommonError(w, err)
 		empName := r.Form["empName"][0]
 		age, err := strconv.Atoi(r.Form["age"][0])
-		if !CommonError(w, err) {
-			return
-		}
+		CommonError(w, err)
 		sexStr := r.Form["sex"][0]
 		var sex bool
 		if sexStr == "0" {
@@ -188,9 +166,7 @@ func DeleteEmp(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		empIdStr := r.Form["empNo"][0]
 		empId, err := strconv.Atoi(empIdStr)
-		if !CommonError(w, err) {
-			return
-		}
+		CommonError(w, err)
 		// 从map里面删除
 		delete(empMap, empId)
 		log.Println("删除了一条emp数据")

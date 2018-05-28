@@ -26,14 +26,10 @@ func File(w http.ResponseWriter, r *http.Request) {
 	saveFileInfos(root)
 	// 模板解析
 	buff, err := ioutil.ReadFile("src/templates/file/index.html")
-	if !CommonError(w, err) {
-		return
-	}
+	CommonError(w, err)
 	// 注册自定义函数It must be called before the template is parsed.
 	t, err := template.New("t").Funcs(template.FuncMap{"contains": strings.Contains}).Parse(string(buff))
-	if !TemplateParseError(w, err) {
-		return
-	}
+	TemplateParseError(w, err)
 	result := vo.FileSystem{
 		Path:    root,
 		FileMap: fileMap,
